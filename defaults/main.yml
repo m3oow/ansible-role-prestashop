@@ -1,0 +1,38 @@
+---
+prestashop_version: 1.7.7.2
+prestashop_download_url: "https://download.prestashop.com/download/releases/prestashop_{{ prestashop_version }}.zip"
+
+# Change those based on your web server (apache, nginx, ...)
+# configuration and operating system
+prestashop_root_path: '/var/www/prestashop'
+prestashop_user: 'www-data'
+prestashop_group: 'www-data'
+prestashop_chmod: '0750'
+
+# Configurations values passed to Prestashop command-line # installation script.
+# http://doc.prestashop.com/display/PS17/Installing+PrestaShop+using+the+command-line+script
+prestashop_language: 'fr'
+prestashop_timezone: 'Europe/Paris'
+prestashop_domain: 'prestashop.test'
+prestashop_db_server: 'localhost'
+prestashop_db_name: 'prestashop'
+prestashop_db_user: 'prestashop'
+prestashop_db_password: 'prestashop'
+prestashop_db_clear: 1
+prestashop_db_create: 1
+prestashop_engine: 'InnoDB'
+prestashop_prefix: 'ps_'
+prestashop_name: 'Prestashop'
+prestashop_activity: 0
+prestashop_country: 'fr'
+prestashop_firstname: 'John'
+prestashop_lastname: 'Doe'
+prestashop_email: 'admin@prestashop.com'
+prestashop_password: 'prestashop'
+prestashop_license: 0
+prestashop_newsletter: 0
+prestashop_send_email: 0
+prestashop_all_languages: 0
+prestashop_ssl: 0
+
+prestashop_admin_folder_name: 'admin'

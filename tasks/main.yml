@@ -1,0 +1,91 @@
+---
+- name: Check Prestashop installation status.
+  stat:
+    path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
+  register: prestashop_status
+
+- name: Create Prestashop root directory.
+  file:
+    path: "{{ prestashop_root_path }}"
+    owner: "{{ prestashop_user }}"
+    group: "{{ prestashop_group }}"
+    mode: "{{ prestashop_chmod }}"
+    state: directory
+  when: prestashop_status.stat.exists == false
+
+- name: Download Prestashop installer.
+  unarchive:
+    src: "{{ prestashop_download_url }}"
+    dest: "{{ prestashop_root_path }}"
+    remote_src: true
+  when: prestashop_status.stat.exists == false
+
+- name: Decompress Prestashop installer.
+  unarchive:
+    src: "{{ prestashop_root_path }}/{{ prestashop_install_archive }}"
+    dest: "{{ prestashop_root_path }}"
+    remote_src: true
+  when: prestashop_status.stat.exists == false
+
+# - name: Delete Prestashop installer.
+#  file:
+#    state: absent
+#    path: "{{ prestashop_root_path }}/{{ prestashop_install_archive }}"
+#  when: prestashop_status.stat.exists == false
+
+- name: Execute Prestahop PHP installation script.
+  command: >
+    php index_cli.php
+    --language={{ prestashop_language }}
+    --timezone={{ prestashop_timezone }}
+    --domain={{ prestashop_domain }}
+    --db_server={{ prestashop_db_server }}
+    --db_user={{ prestashop_db_user }}
+    --db_password={{ prestashop_db_password }}
+    --db_name={{ prestashop_db_name }}
+    --db_clear={{ prestashop_db_clear }}
+    --db_create={{ prestashop_db_create }}
+    --prefix={{ prestashop_prefix }}
+    --engine={{ prestashop_engine }}
+    --name={{ prestashop_name }}
+    --activity={{ prestashop_activity }}
+    --country={{ prestashop_country }}
+    --firstname={{ prestashop_firstname }}
+    --lastname={{ prestashop_lastname }}
+    --password={{ prestashop_password }}
+    --email={{ prestashop_email }}
+    --license={{ prestashop_license }}
+    --newsletter={{ prestashop_newsletter }}
+    --send_email={{ prestashop_send_email }}
+    --all_languages={{ prestashop_all_languages }}
+    --ssl={{ prestashop_ssl }}
+  args:
+    chdir: "{{ prestashop_root_path }}/{{ prestashop_install_folder }}"
+  when: prestashop_status.stat.exists == false
+
+- name: Delete Prestashop install directory.
+  file:
+    path: "{{ prestashop_root_path }}/{{ item }}"
+    state: absent
+  with_items:
+    - "{{ prestashop_install_folder }}"
+    - "{{ prestashop_install_archive }}"
+
+- name: Rename Prestashop admin directory.
+  command: "mv {{ prestashop_root_path }}/{{ prestashop_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_admin_folder_name }}"
+  when: prestashop_status.stat.exists == false
+
+- name: Create a file to track Prestashop installation status.
+  copy:
+    content: "{{ prestashop_version }}"
+    dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
+  when: prestashop_status.stat.exists == false
+
+- name: Change global permissions on Prestashop root directory.
+  ansible.builtin.file:
+    path: "{{ prestashop_root_path }}"
+    state: directory
+    recurse: yes
+    owner: "{{ prestashop_user }}"
+    group: "{{ prestashop_group }}"
+    mode: "{{ prestashop_chmod }}"

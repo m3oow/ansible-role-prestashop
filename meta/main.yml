@@ -1,0 +1,26 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: prestashop
+  author: m3oow
+  description: Prestashop 1.7.x for Linux.
+  license: MIT / BSD
+  min_ansible_version: 2.10
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - stretch
+    - name: Ubuntu
+      versions:
+        - bionic
+        - disco
+        - eoan
+        - focal
+        - groovy
+  galaxy_tags:
+    - prestashop
+    - ecommerce
+
+allow_duplicates: true
