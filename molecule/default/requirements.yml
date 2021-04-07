@@ -1,0 +1,6 @@
+---
+collections: []
+
+roles:
+  - name: geerlingguy.mysql
+    version: 3.3.0
