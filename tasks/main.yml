@@ -1,10 +1,10 @@
 ---
-- name: Check Prestashop installation status.
+- name: check prestashop installation status
   stat:
     path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
   register: prestashop_status
 
-- name: Create Prestashop root directory.
+- name: create prestashop root directory
   file:
     path: "{{ prestashop_root_path }}"
     owner: "{{ prestashop_user }}"
@@ -13,14 +13,14 @@
     state: directory
   when: prestashop_status.stat.exists == false
 
-- name: Download Prestashop installer.
+- name: download prestashop installer
   unarchive:
     src: "{{ prestashop_download_url }}"
     dest: "{{ prestashop_root_path }}"
     remote_src: true
   when: prestashop_status.stat.exists == false
 
-- name: Decompress Prestashop installer.
+- name: decompress prestashop installer
   unarchive:
     src: "{{ prestashop_root_path }}/{{ prestashop_install_archive }}"
     dest: "{{ prestashop_root_path }}"
@@ -33,7 +33,7 @@
 #    path: "{{ prestashop_root_path }}/{{ prestashop_install_archive }}"
 #  when: prestashop_status.stat.exists == false
 
-- name: Execute Prestahop PHP installation script.
+- name: execute prestahop PHP installation script
   command: >
     php index_cli.php
     --language={{ prestashop_language }}
@@ -63,7 +63,7 @@
     chdir: "{{ prestashop_root_path }}/{{ prestashop_install_folder }}"
   when: prestashop_status.stat.exists == false
 
-- name: Delete Prestashop install directory.
+- name: delete prestashop install directory
   file:
     path: "{{ prestashop_root_path }}/{{ item }}"
     state: absent
@@ -71,17 +71,17 @@
     - "{{ prestashop_install_folder }}"
     - "{{ prestashop_install_archive }}"
 
-- name: Rename Prestashop admin directory.
+- name: rename prestashop admin directory
   command: "mv {{ prestashop_root_path }}/{{ prestashop_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_admin_folder_name }}"
   when: prestashop_status.stat.exists == false
 
-- name: Create a file to track Prestashop installation status.
+- name: create a file to track prestashop installation status
   copy:
     content: "{{ prestashop_version }}"
     dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
   when: prestashop_status.stat.exists == false
 
-- name: Change global permissions on Prestashop root directory.
+- name: change global permissions on prestashop root directory
   ansible.builtin.file:
     path: "{{ prestashop_root_path }}"
     state: directory
