@@ -29,11 +29,13 @@
         cache_valid_time: 3600
       when: ansible_os_family == 'Debian'
 
+    # Required to unzip Prestashop installer
     - name: install unzip
       ansible.builtin.package:
         name: unzip
         state: present
 
+    # Required to execute Prestashop CLI install
     - name: install php and extra packages
       ansible.builtin.package:
         name:
@@ -49,6 +51,7 @@
           - php-pear
         state: present
 
+    # A MySql installation is required for Prestashop CLI install
     - name: install mock mysql database
       import_role:
         name: geerlingguy.mysql
