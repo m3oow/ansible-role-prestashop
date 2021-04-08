@@ -1,0 +1,61 @@
+---
+- name: Converge
+  hosts: all
+
+  vars:
+    mysql_databases:
+    - name: "{{ prestashop_db_name }}"
+      collation: utf8mb4_general_ci
+      encoding: utf8mb4
+      replicate: 1
+      state: present
+
+    mysql_users:
+      - name: "{{ prestashop_db_user }}"
+        host: "%"
+        password: "{{ prestashop_db_password }}"
+        priv: "{{ prestashop_db_name }}.*:ALL"
+        state: present
+      - name: "{{ prestashop_db_user }}"
+        host: "localhost"
+        password: "{{ prestashop_db_password }}"
+        priv: "{{ prestashop_db_name }}.*:ALL"
+        state: present
+
+  tasks:
+    - name: update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == 'Debian'
+
+    # Required to unzip Prestashop installer
+    - name: install unzip
+      ansible.builtin.package:
+        name: unzip
+        state: present
+
+    # Required to execute Prestashop CLI install
+    - name: install php and extra packages
+      ansible.builtin.package:
+        name:
+          - php
+          - php-curl
+          - php-gd
+          - php-intl
+          - php-json
+          - php-mbstring
+          - php-mysql
+          - php-zip
+          - php-soap
+          - php-pear
+        state: present
+
+    # A MySql installation is required for Prestashop CLI install
+    - name: install mock mysql database
+      import_role:
+        name: geerlingguy.mysql
+
+    - name: include ansible-role-prestashop
+      import_role:
+        name: ansible-role-prestashop

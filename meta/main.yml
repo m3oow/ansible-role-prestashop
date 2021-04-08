@@ -11,14 +11,10 @@ galaxy_info:
     - name: Debian
       versions:
         - buster
-        - stretch
     - name: Ubuntu
       versions:
-        - bionic
-        - disco
-        - eoan
         - focal
-        - groovy
+        - bionic
   galaxy_tags:
     - prestashop
     - ecommerce
