@@ -1,5 +1,0 @@
----
-prestashop_install_archive: 'prestashop.zip'
-prestashop_install_folder: 'install'
-prestashop_admin_folder: 'admin'
-prestashop_check_file_name: 'prestashop-ansible.txt'
