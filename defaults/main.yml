@@ -1,6 +1,11 @@
 ---
 prestashop_version: 1.7.7.2
+
 prestashop_download_url: "https://download.prestashop.com/download/releases/prestashop_{{ prestashop_version }}.zip"
+prestashop_install_archive: 'prestashop.zip'
+prestashop_install_folder: 'install'
+prestashop_default_admin_folder: 'admin'
+prestashop_modified_admin_folder: 'admin1'
 
 # Change those based on your web server (apache, nginx, ...)
 # configuration and operating system
@@ -35,4 +40,4 @@ prestashop_send_email: 0
 prestashop_all_languages: 0
 prestashop_ssl: 0
 
-prestashop_admin_folder_name: 'admin1'
+prestashop_check_file_name: 'prestashop-ansible.txt'

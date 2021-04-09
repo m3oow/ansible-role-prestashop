@@ -72,7 +72,7 @@
     - "{{ prestashop_install_archive }}"
 
 - name: rename prestashop admin directory
-  command: "mv {{ prestashop_root_path }}/{{ prestashop_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_admin_folder_name }}"
+  command: "mv {{ prestashop_root_path }}/{{ prestashop_default_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_modified_admin_folder }}"
   when: prestashop_status.stat.exists == false
 
 - name: create a file to track prestashop installation status
