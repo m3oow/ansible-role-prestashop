@@ -26,10 +26,34 @@ prestashop_version: 1.7.7.2
 Prestashop version to deploy.
 
 ```yml
-prestashop_url_download: "https://download.prestashop.com/download/releases/prestashop_{{ prestashop_version }}.zip"
+prestashop_download_url: "https://download.prestashop.com/download/releases/prestashop_{{ prestashop_version }}.zip"
 ```
 
 The URL from which to download Prestashop installer.
+
+```yml
+prestashop_install_archive: 'prestashop.zip'
+```
+
+Prestashop default name for the installation archive.
+
+```yml
+prestashop_install_folder: 'install'
+```
+
+Prestashop default install folder name.
+
+```yml
+prestashop_default_admin_folder: 'admin'
+```
+
+Prestashop default admin folder name.
+
+```yml
+prestashop_modified_admin_folder: 'admin1'
+```
+
+Name of the Prestashop folder which hold the administration backend (for security reasons, it is highly recommended to change this value with a random name, so that directory enumeration is made difficult for a potential attacker).
 
 ```yml
 prestashop_root_path: "/var/www/prestashop"
@@ -100,14 +124,16 @@ Other basic configuration values for your shop. Those values are passed to the P
 * `prestashop_all_languages` : set to `0` to prevent download of all available languages for Prestashop.
 
 ```yml
-prestashop_admin_folder_name: "admin"
+prestashop_check_file_name: 'prestashop-ansible.txt'
 ```
 
-Name of the Prestashop folder which hold the administration backend (for security reasons, it is highly recommended to change this value with a random name, so that directory enumeration is made difficult for a potential attacker).
+Name of the file used by Ansible to detect Prestashop installation.
 
 ## Dependencies
 
-None.
+* unzip
+* php (see [compatibility chart](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart))
+* mysql
 
 ## Example Playbook
 
@@ -116,7 +142,7 @@ Create or add to your roles dependency file (e.g requirements.yml):
 ```yml
 ---
 - src: https://github.com/m3oow/ansible-role-prestashop
-  version: master
+  version: "v1.1.0"
   name: m3oow.prestashop
 ```
 
@@ -133,6 +159,13 @@ Use in a playbook:
 - hosts: someserver
   roles:
     - m3oow.prestashop
+```
+
+Playbook examples can also be found in the **[`molecule/`](./molecule)** folder in the following files:
+
+|Name|Description|
+|----|-----------|
+|**[`default/converge.yml`](./molecule/default/converge.yml)**|Basic Playbook to test Prestashop installation without any web server|
 
 ## License
 
