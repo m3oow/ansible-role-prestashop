@@ -4,11 +4,11 @@
 
   vars:
     mysql_databases:
-    - name: "{{ prestashop_db_name }}"
-      collation: utf8mb4_general_ci
-      encoding: utf8mb4
-      replicate: 1
-      state: present
+      - name: "{{ prestashop_db_name }}"
+        collation: utf8mb4_general_ci
+        encoding: utf8mb4
+        replicate: 1
+        state: present
 
     mysql_users:
       - name: "{{ prestashop_db_user }}"

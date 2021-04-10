@@ -4,10 +4,8 @@ dependency:
 driver:
   name: docker
 lint: |
-  set -e
   yamllint .
-  ansible-lint
-  flake8
+  ansible-lint .
 platforms:
   - name: instance
     image: "geerlingguy/docker-${MOLECULE_DISTRIBUTION:-ubuntu2004}-ansible:latest"
