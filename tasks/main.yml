@@ -2,7 +2,7 @@
 - name: check prestashop installation status
   stat:
     path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
-  register: prestashop_is_installed
+  register: prestashop_status
 
 - name: create prestashop root directory
   file:
