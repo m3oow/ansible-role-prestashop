@@ -2,7 +2,7 @@
 - name: check prestashop installation status
   stat:
     path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
-  register: prestashop_status
+  register: prestashop_is_installed
 
 - name: create prestashop root directory
   file:
@@ -11,21 +11,21 @@
     group: "{{ prestashop_group }}"
     mode: "{{ prestashop_chmod }}"
     state: directory
-  when: prestashop_status.stat.exists == false
+  when: not prestashop_status.stat.exists
 
 - name: download prestashop installer
   unarchive:
     src: "{{ prestashop_download_url }}"
     dest: "{{ prestashop_root_path }}"
     remote_src: true
-  when: prestashop_status.stat.exists == false
+  when: not prestashop_status.stat.exists
 
 - name: decompress prestashop installer
   unarchive:
     src: "{{ prestashop_root_path }}/{{ prestashop_install_archive }}"
     dest: "{{ prestashop_root_path }}"
     remote_src: true
-  when: prestashop_status.stat.exists == false
+  when: not prestashop_status.stat.exists
 
 - name: execute prestahop PHP installation script
   command: >
@@ -55,7 +55,7 @@
     --ssl={{ prestashop_ssl }}
   args:
     chdir: "{{ prestashop_root_path }}/{{ prestashop_install_folder }}"
-  when: prestashop_status.stat.exists == false
+  when: not prestashop_status.stat.exists
 
 - name: delete prestashop install directory
   file:
@@ -67,13 +67,16 @@
 
 - name: rename prestashop admin directory
   command: "mv {{ prestashop_root_path }}/{{ prestashop_default_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_modified_admin_folder }}"
-  when: prestashop_status.stat.exists == false
+  when: not prestashop_status.stat.exists
 
 - name: create a file to track prestashop installation status
   copy:
     content: "{{ prestashop_version }}"
     dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
-  when: prestashop_status.stat.exists == false
+    owner: "{{ prestashop_user }}"
+    group: "{{ prestashop_group }}"
+    mode: "{{ prestashop_chmod }}"
+  when: not prestashop_status.stat.exists
 
 - name: change global permissions on prestashop root directory
   ansible.builtin.file:
