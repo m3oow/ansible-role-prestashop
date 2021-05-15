@@ -9,18 +9,21 @@
     state: directory
     suffix: build
   register: tempdir
+  when: not prestashop_status.stat.exists
 
 - name: download prestashop installer
   unarchive:
     src: "{{ prestashop_download_url }}"
     dest: "{{ tempdir.path }}"
     remote_src: true
+  when: not prestashop_status.stat.exists
 
 - name: decompress prestashop installer
   unarchive:
     src: "{{ tempdir.path }}/{{ prestashop_install_archive }}"
     dest: "{{ tempdir.path }}"
     remote_src: true
+  when: not prestashop_status.stat.exists
 
 - name: execute prestahop PHP installation script
   command: >
@@ -52,6 +55,7 @@
     chdir: "{{ tempdir.path }}/{{ prestashop_install_folder }}"
   register: result
   changed_when: "'Installation successful!' in result.stdout"
+  when: not prestashop_status.stat.exists
 
 - name: delete prestashop install directory
   file:
@@ -60,12 +64,14 @@
   with_items:
     - "{{ prestashop_install_folder }}"
     - "{{ prestashop_install_archive }}"
+  when: not prestashop_status.stat.exists
 
 - name: rename prestashop admin directory
   command: "mv {{ tempdir.path }}/{{ prestashop_default_admin_folder }} {{ tempdir.path }}/{{ prestashop_modified_admin_folder }}"
   register: result
   changed_when: result.rc == 0
   failed_when: result.rc != 0
+  when: not prestashop_status.stat.exists
 
 - name: create prestashop root directory
   file:
@@ -84,6 +90,7 @@
     owner: "{{ prestashop_user }}"
     group: "{{ prestashop_group }}"
     mode: "{{ prestashop_chmod }}"
+  when: not prestashop_status.stat.exists
 
 - name: create a file to track prestashop installation status
   copy:
@@ -107,3 +114,4 @@
   ansible.builtin.file:
     path: "{{ tempdir.path }}"
     state: absent
+  when: not prestashop_status.stat.exists
