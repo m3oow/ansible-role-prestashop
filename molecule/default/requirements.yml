@@ -4,3 +4,7 @@ collections: []
 roles:
   - name: geerlingguy.mysql
     version: 3.3.0
+  - name: geerlingguy.php
+    version: 4.5.1
+  - name: geerlingguy.apache
+    version: 3.1.4

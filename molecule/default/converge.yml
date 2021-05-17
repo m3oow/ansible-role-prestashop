@@ -3,6 +3,7 @@
   hosts: all
 
   vars:
+    ### geerlingguy.mysql ###
     mysql_databases:
       - name: "{{ prestashop_db_name }}"
         collation: utf8mb4_general_ci
@@ -22,6 +23,37 @@
         priv: "{{ prestashop_db_name }}.*:ALL"
         state: present
 
+    ### geerlingguy.php ###
+    php_enable_webserver: true
+    php_packages_extra:
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-json
+      - php-mbstring
+      - php-mysql
+      - php-zip
+      - php-soap
+      - php-pear
+      - php-fpm
+    php_enable_php_fpm: true
+    php_fpm_state: started
+    php_fpm_enabled_on_boot: true
+    php_fpm_handler_state: restarted
+
+    ### geerlingguy.apache ###
+    apache_create_vhosts: false
+    apache_remove_default_vhost: true
+    apache_vhosts: []
+    apache_vhosts_ssl: []
+
+    apache_mods_enabled:
+      - rewrite.load
+      - ssl.load
+      - proxy.load
+      - proxy_fcgi.load
+      - alias.load
+
   tasks:
     - name: update apt cache
       apt:
@@ -35,26 +67,25 @@
         name: unzip
         state: present
 
-    # Required to execute Prestashop CLI install
-    - name: install php and extra packages
-      ansible.builtin.package:
-        name:
-          - php
-          - php-curl
-          - php-gd
-          - php-intl
-          - php-json
-          - php-mbstring
-          - php-mysql
-          - php-zip
-          - php-soap
-          - php-pear
-        state: present
-
-    # A MySql installation is required for Prestashop CLI install
-    - name: install mock mysql database
+    - name: install mysql database
       import_role:
         name: geerlingguy.mysql
+
+    - name: install apache
+      import_role:
+        name: geerlingguy.apache
+
+    - name: install php
+      import_role:
+        name: geerlingguy.php
+
+    - name: copy prestashop configuration for apache
+      ansible.builtin.copy:
+        src: files/prestashop.conf
+        dest: /etc/apache2/sites-enabled/prestashop.conf
+        owner: www-data
+        group: www-data
+        mode: '0644'
 
     - name: include ansible-role-prestashop
       import_role:
