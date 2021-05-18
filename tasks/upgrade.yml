@@ -61,6 +61,15 @@
     - "{{ prestashop_install_folder }}"
     - "{{ prestashop_install_archive }}"
 
+- name: update file to track prestashop installation status
+  ansible.builtin.copy:
+    content: "{{ prestashop_version }}"
+    dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
+    force: yes
+    owner: "{{ prestashop_user }}"
+    group: "{{ prestashop_group }}"
+    mode: "{{ prestashop_chmod }}"
+
 - name: change global permissions on prestashop root directory
   ansible.builtin.file:
     path: "{{ prestashop_root_path }}"
