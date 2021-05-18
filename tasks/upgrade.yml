@@ -17,44 +17,14 @@
     dest: "{{ tempdir.path }}"
     remote_src: true
 
-- name: execute prestahop PHP installation script
-  command: >
-    php index_cli.php
-    --language={{ prestashop_language }}
-    --timezone={{ prestashop_timezone }}
-    --domain={{ prestashop_domain }}
-    --db_server={{ prestashop_db_server }}
-    --db_user={{ prestashop_db_user }}
-    --db_password={{ prestashop_db_password }}
-    --db_name={{ prestashop_db_name }}
-    --db_clear={{ prestashop_db_clear }}
-    --db_create={{ prestashop_db_create }}
-    --prefix={{ prestashop_prefix }}
-    --engine={{ prestashop_engine }}
-    --name={{ prestashop_name }}
-    --activity={{ prestashop_activity }}
-    --country={{ prestashop_country }}
-    --firstname={{ prestashop_firstname }}
-    --lastname={{ prestashop_lastname }}
-    --password={{ prestashop_password }}
-    --email={{ prestashop_email }}
-    --license={{ prestashop_license }}
-    --newsletter={{ prestashop_newsletter }}
-    --send_email={{ prestashop_send_email }}
-    --all_languages={{ prestashop_all_languages }}
-    --ssl={{ prestashop_ssl }}
-  args:
-    chdir: "{{ tempdir.path }}/{{ prestashop_install_folder }}"
-  register: result
-  changed_when: "'Installation successful!' in result.stdout"
-
-- name: delete prestashop install directory
+- name: Delete useless files and directories
   file:
     path: "{{ tempdir.path }}/{{ item }}"
     state: absent
   with_items:
-    - "{{ prestashop_install_folder }}"
-    - "{{ prestashop_install_archive }}"
+    - img
+    - override
+    - modules
 
 - name: rename prestashop admin directory
   command: "mv {{ tempdir.path }}/{{ prestashop_default_admin_folder }} {{ tempdir.path }}/{{ prestashop_modified_admin_folder }}"
@@ -62,13 +32,12 @@
   changed_when: result.rc == 0
   failed_when: result.rc != 0
 
-- name: create prestashop root directory
+- name: Delete vendor directory in target
   file:
-    path: "{{ prestashop_root_path }}"
-    owner: "{{ prestashop_user }}"
-    group: "{{ prestashop_group }}"
-    mode: "{{ prestashop_chmod }}"
-    state: directory
+    path: "{{ prestashop_root_path }}/{{ item }}"
+    state: absent
+  with_items:
+    - vendor
 
 - name: copy pretashop files to www folder
   ansible.builtin.copy:
@@ -79,13 +48,18 @@
     group: "{{ prestashop_group }}"
     mode: "{{ prestashop_chmod }}"
 
-- name: create a file to track prestashop installation status
-  copy:
-    content: "{{ prestashop_version }}"
-    dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
-    owner: "{{ prestashop_user }}"
-    group: "{{ prestashop_group }}"
-    mode: "{{ prestashop_chmod }}"
+- name: Upgrade database
+  command: php install/upgrade/upgrade.php
+  args:
+    chdir:  "{{ prestashop_root_path }}"
+
+- name: delete prestashop install directory
+  file:
+    path: "{{ prestashop_root_path }}/{{ item }}"
+    state: absent
+  with_items:
+    - "{{ prestashop_install_folder }}"
+    - "{{ prestashop_install_archive }}"
 
 - name: change global permissions on prestashop root directory
   ansible.builtin.file:

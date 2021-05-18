@@ -1,13 +1,13 @@
 <VirtualHost 0.0.0.0:80>
-    ServerName prestashop.test
-    DocumentRoot /var/www/prestashop
+    ServerName {{ prestashop_domain }}
+    DocumentRoot {{ prestashop_root_path }}
 
     <FilesMatch \.php$>
         #SetHandler proxy:unix:/var/run/php/php-fpm.sock|fcgi://dummy
         SetHandler "proxy:fcgi://localhost:9000"
     </FilesMatch>
 
-    <Directory /var/www/prestashop>
+    <Directory {{ prestashop_root_path }}>
         # enable the .htaccess rewrites
         AllowOverride All
         Options Indexes FollowSymLinks MultiViews

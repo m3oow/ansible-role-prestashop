@@ -80,12 +80,21 @@
         name: geerlingguy.php
 
     - name: copy prestashop configuration for apache
-      ansible.builtin.copy:
-        src: files/prestashop.conf
-        dest: /etc/apache2/sites-enabled/prestashop.conf
-        owner: www-data
-        group: www-data
-        mode: '0644'
+      ansible.builtin.template:
+        src: templates/prestashop.conf.j2
+        dest: "{{ apache_server_root }}/sites-available/prestashop.conf"
+        owner: root
+        group: root
+        mode: '0750'
+      notify: restart apache
+
+    - name: add vhost symlink in sites-enabled
+      file:
+        src: "{{ apache_server_root }}/sites-available/prestashop.conf"
+        dest: "{{ apache_server_root }}/sites-enabled/prestashop.conf"
+        state: link
+        mode: 0750
+      notify: restart apache
 
     - name: include ansible-role-prestashop
       import_role:
