@@ -51,7 +51,7 @@
 - name: Upgrade database
   command: php install/upgrade/upgrade.php
   args:
-    chdir:  "{{ prestashop_root_path }}"
+    chdir: "{{ prestashop_root_path }}"
 
 - name: delete prestashop install directory
   file:

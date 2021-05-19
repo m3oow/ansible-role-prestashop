@@ -4,10 +4,18 @@
     path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
   register: prestashop_status
 
+- name: get prestashop installed version
+  ansible.builtin.slurp:
+    src: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
+  register: prestashop_installed_version
+  when: prestashop_status.stat.exists
+
 - name: install prestashop
   include_tasks: install.yml
   when: not prestashop_status.stat.exists
 
 - name: upgrade prestashop
   include_tasks: upgrade.yml
-  when: prestashop_status.stat.exists
+  when:
+    - prestashop_status.stat.exists
+    - prestashop_version is version(prestashop_installed_version, '>')
