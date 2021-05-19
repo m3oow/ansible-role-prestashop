@@ -18,4 +18,4 @@
   include_tasks: upgrade.yml
   when:
     - prestashop_status.stat.exists
-    - prestashop_version is version(prestashop_installed_version, '>')
+    - prestashop_version is version(prestashop_installed_version.content | b64decode, '>')
