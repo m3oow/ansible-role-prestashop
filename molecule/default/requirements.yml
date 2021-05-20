@@ -3,8 +3,8 @@ collections: []
 
 roles:
   - name: geerlingguy.mysql
-    version: 3.3.0
+    version: 3.3.1
   - name: geerlingguy.php
-    version: 4.5.1
+    version: 4.6.0
   - name: geerlingguy.apache
     version: 3.1.4

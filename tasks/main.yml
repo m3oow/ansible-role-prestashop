@@ -1,6 +1,6 @@
 ---
 - name: check prestashop installation status
-  stat:
+  ansible.builtin.stat:
     path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
   register: prestashop_status
 
@@ -11,11 +11,12 @@
   when: prestashop_status.stat.exists
 
 - name: install prestashop
-  include_tasks: install.yml
+  ansible.builtin.include_tasks: install.yml
   when: not prestashop_status.stat.exists
 
+# upgrade only if prestashop_version is higher than current installed version
 - name: upgrade prestashop
-  include_tasks: upgrade.yml
+  ansible.builtin.include_tasks: upgrade.yml
   when:
     - prestashop_status.stat.exists
     - prestashop_version is version(prestashop_installed_version.content | b64decode, '>')

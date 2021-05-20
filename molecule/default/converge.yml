@@ -37,9 +37,6 @@
       - php-pear
       - php-fpm
     php_enable_php_fpm: true
-    php_fpm_state: started
-    php_fpm_enabled_on_boot: true
-    php_fpm_handler_state: restarted
 
     ### geerlingguy.apache ###
     apache_create_vhosts: false
@@ -56,7 +53,7 @@
 
   tasks:
     - name: update apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       when: ansible_os_family == 'Debian'
@@ -67,19 +64,19 @@
         name: unzip
         state: present
 
-    - name: install mysql database
-      import_role:
+    - name: install mysql
+      ansible.builtin.import_role:
         name: geerlingguy.mysql
 
     - name: install apache
-      import_role:
+      ansible.builtin.import_role:
         name: geerlingguy.apache
 
-    - name: install php
-      import_role:
+    - name: install php and php-fpm
+      ansible.builtin.import_role:
         name: geerlingguy.php
 
-    - name: copy prestashop configuration for apache
+    - name: copy prestashop configuration (apache)
       ansible.builtin.template:
         src: templates/prestashop.conf.j2
         dest: "{{ apache_server_root }}/sites-available/prestashop.conf"
@@ -88,7 +85,7 @@
         mode: '0750'
       notify: restart apache
 
-    - name: add vhost symlink in sites-enabled
+    - name: add symlink to prestashop configuration (apache)
       file:
         src: "{{ apache_server_root }}/sites-available/prestashop.conf"
         dest: "{{ apache_server_root }}/sites-enabled/prestashop.conf"
@@ -96,6 +93,6 @@
         mode: 0750
       notify: restart apache
 
-    - name: include ansible-role-prestashop
-      import_role:
+    - name: install prestashop
+      ansible.builtin.import_role:
         name: ansible-role-prestashop

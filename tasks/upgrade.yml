@@ -6,19 +6,19 @@
   register: tempdir
 
 - name: download prestashop installer
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ prestashop_download_url }}"
     dest: "{{ tempdir.path }}"
     remote_src: true
 
 - name: decompress prestashop installer
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ tempdir.path }}/{{ prestashop_install_archive }}"
     dest: "{{ tempdir.path }}"
     remote_src: true
 
-- name: Delete useless files and directories
-  file:
+- name: delete useless files and directories
+  ansible.builtin.file:
     path: "{{ tempdir.path }}/{{ item }}"
     state: absent
   with_items:
@@ -27,13 +27,13 @@
     - modules
 
 - name: rename prestashop admin directory
-  command: "mv {{ tempdir.path }}/{{ prestashop_default_admin_folder }} {{ tempdir.path }}/{{ prestashop_modified_admin_folder }}"
+  ansible.builtin.command: "mv {{ tempdir.path }}/{{ prestashop_default_admin_folder }} {{ tempdir.path }}/{{ prestashop_modified_admin_folder }}"
   register: result
   changed_when: result.rc == 0
   failed_when: result.rc != 0
 
-- name: Delete vendor directory in target
-  file:
+- name: delete vendor directory in target
+  ansible.builtin.file:
     path: "{{ prestashop_root_path }}/{{ item }}"
     state: absent
   with_items:
@@ -48,13 +48,13 @@
     group: "{{ prestashop_group }}"
     mode: "{{ prestashop_chmod }}"
 
-- name: Upgrade database
-  command: php install/upgrade/upgrade.php
+- name: upgrade database
+  ansible.builtin.command: php install/upgrade/upgrade.php
   args:
     chdir: "{{ prestashop_root_path }}"
 
 - name: delete prestashop install directory
-  file:
+  ansible.builtin.file:
     path: "{{ prestashop_root_path }}/{{ item }}"
     state: absent
   with_items:
