@@ -76,7 +76,8 @@
     - "{{ prestashop_install_archive }}"
 
 - name: rename prestashop admin directory
-  ansible.builtin.command: "mv {{ prestashop_root_path }}/{{ prestashop_default_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_modified_admin_folder }}"
+  ansible.builtin.command: >
+    mv {{ prestashop_root_path }}/{{ prestashop_default_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_modified_admin_folder }}
   register: result
   changed_when: result.rc == 0
   failed_when: result.rc != 0
