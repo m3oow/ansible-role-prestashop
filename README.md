@@ -1,6 +1,6 @@
 # Ansible Role: Prestashop 1.7.x
 
-An Ansible Role that installs Prestashop 1.7.x on Debian / Ubuntu.
+An Ansible Role that installs / upgrades Prestashop 1.7.x on Debian / Ubuntu.
 
 ## Requirements
 
@@ -20,10 +20,10 @@ I recommend using the following galaxy roles (and override their default variabl
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
 ```yml
-prestashop_version: 1.7.7.2
+prestashop_version: 1.7.7.4
 ```
 
-Prestashop version to deploy.
+Prestashop version to deploy. If Prestashop has already been installed using this Ansible role, this version has to be higher than the current installed version (no downgrades for stability purpose).
 
 ```yml
 prestashop_download_url: "https://download.prestashop.com/download/releases/prestashop_{{ prestashop_version }}.zip"
@@ -75,7 +75,6 @@ prestashop_timezone: 'Europe/Paris'
 ```
 
 To set according to your region.
-
 
 ```yml
 prestashop_domain: "prestashop.test"
@@ -141,9 +140,9 @@ Create or add to your roles dependency file (e.g requirements.yml):
 
 ```yml
 ---
-- src: https://github.com/m3oow/ansible-role-prestashop
-  version: "v1.1.0"
-  name: m3oow.prestashop
+roles:
+  - src: m3oow.prestashop
+    version: 1.1.0
 ```
 
 Install the role with `ansible-galaxy` command:
