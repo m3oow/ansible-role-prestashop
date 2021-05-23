@@ -14,7 +14,7 @@ prestashop_user: 'www-data'
 prestashop_group: 'www-data'
 prestashop_chmod: '0750'
 
-# Configurations values passed to Prestashop command-line # installation script.
+# Configurations values passed to Prestashop CLI installation script.
 # http://doc.prestashop.com/display/PS17/Installing+PrestaShop+using+the+command-line+script
 prestashop_language: 'fr'
 prestashop_timezone: 'Europe/Paris'

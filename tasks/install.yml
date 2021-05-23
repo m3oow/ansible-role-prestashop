@@ -82,7 +82,7 @@
   changed_when: result.rc == 0
   failed_when: result.rc != 0
 
-- name: create a file to track prestashop installation status
+- name: create a file to track prestashop installation status and version
   ansible.builtin.copy:
     content: "{{ prestashop_version }}"
     dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
