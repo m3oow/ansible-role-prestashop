@@ -1,88 +1,22 @@
 ---
 - name: check prestashop installation status
-  stat:
+  ansible.builtin.stat:
     path: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
   register: prestashop_status
 
-- name: create prestashop root directory
-  file:
-    path: "{{ prestashop_root_path }}"
-    owner: "{{ prestashop_user }}"
-    group: "{{ prestashop_group }}"
-    mode: "{{ prestashop_chmod }}"
-    state: directory
+- name: get prestashop installed version
+  ansible.builtin.slurp:
+    src: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
+  register: prestashop_installed_version
+  when: prestashop_status.stat.exists
+
+- name: install prestashop
+  ansible.builtin.include_tasks: install.yml
   when: not prestashop_status.stat.exists
 
-- name: download prestashop installer
-  unarchive:
-    src: "{{ prestashop_download_url }}"
-    dest: "{{ prestashop_root_path }}"
-    remote_src: true
-  when: not prestashop_status.stat.exists
-
-- name: decompress prestashop installer
-  unarchive:
-    src: "{{ prestashop_root_path }}/{{ prestashop_install_archive }}"
-    dest: "{{ prestashop_root_path }}"
-    remote_src: true
-  when: not prestashop_status.stat.exists
-
-- name: execute prestahop PHP installation script
-  command: >
-    php index_cli.php
-    --language={{ prestashop_language }}
-    --timezone={{ prestashop_timezone }}
-    --domain={{ prestashop_domain }}
-    --db_server={{ prestashop_db_server }}
-    --db_user={{ prestashop_db_user }}
-    --db_password={{ prestashop_db_password }}
-    --db_name={{ prestashop_db_name }}
-    --db_clear={{ prestashop_db_clear }}
-    --db_create={{ prestashop_db_create }}
-    --prefix={{ prestashop_prefix }}
-    --engine={{ prestashop_engine }}
-    --name={{ prestashop_name }}
-    --activity={{ prestashop_activity }}
-    --country={{ prestashop_country }}
-    --firstname={{ prestashop_firstname }}
-    --lastname={{ prestashop_lastname }}
-    --password={{ prestashop_password }}
-    --email={{ prestashop_email }}
-    --license={{ prestashop_license }}
-    --newsletter={{ prestashop_newsletter }}
-    --send_email={{ prestashop_send_email }}
-    --all_languages={{ prestashop_all_languages }}
-    --ssl={{ prestashop_ssl }}
-  args:
-    chdir: "{{ prestashop_root_path }}/{{ prestashop_install_folder }}"
-  when: not prestashop_status.stat.exists
-
-- name: delete prestashop install directory
-  file:
-    path: "{{ prestashop_root_path }}/{{ item }}"
-    state: absent
-  with_items:
-    - "{{ prestashop_install_folder }}"
-    - "{{ prestashop_install_archive }}"
-
-- name: rename prestashop admin directory
-  command: "mv {{ prestashop_root_path }}/{{ prestashop_default_admin_folder }} {{ prestashop_root_path }}/{{ prestashop_modified_admin_folder }}"
-  when: not prestashop_status.stat.exists
-
-- name: create a file to track prestashop installation status
-  copy:
-    content: "{{ prestashop_version }}"
-    dest: "{{ prestashop_root_path }}/{{ prestashop_check_file_name }}"
-    owner: "{{ prestashop_user }}"
-    group: "{{ prestashop_group }}"
-    mode: "{{ prestashop_chmod }}"
-  when: not prestashop_status.stat.exists
-
-- name: change global permissions on prestashop root directory
-  ansible.builtin.file:
-    path: "{{ prestashop_root_path }}"
-    state: directory
-    recurse: yes
-    owner: "{{ prestashop_user }}"
-    group: "{{ prestashop_group }}"
-    mode: "{{ prestashop_chmod }}"
+# upgrade only if prestashop_version is higher than current installed version
+- name: upgrade prestashop
+  ansible.builtin.include_tasks: upgrade.yml
+  when:
+    - prestashop_status.stat.exists
+    - prestashop_version is version(prestashop_installed_version.content | b64decode, '>')

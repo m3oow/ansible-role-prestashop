@@ -3,6 +3,7 @@
   hosts: all
 
   vars:
+    ### geerlingguy.mysql ###
     mysql_databases:
       - name: "{{ prestashop_db_name }}"
         collation: utf8mb4_general_ci
@@ -22,9 +23,37 @@
         priv: "{{ prestashop_db_name }}.*:ALL"
         state: present
 
+    ### geerlingguy.php ###
+    php_enable_webserver: true
+    php_packages_extra:
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-json
+      - php-mbstring
+      - php-mysql
+      - php-zip
+      - php-soap
+      - php-pear
+      - php-fpm
+    php_enable_php_fpm: true
+
+    ### geerlingguy.apache ###
+    apache_create_vhosts: false
+    apache_remove_default_vhost: true
+    apache_vhosts: []
+    apache_vhosts_ssl: []
+
+    apache_mods_enabled:
+      - rewrite.load
+      - ssl.load
+      - proxy.load
+      - proxy_fcgi.load
+      - alias.load
+
   tasks:
     - name: update apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       when: ansible_os_family == 'Debian'
@@ -35,27 +64,35 @@
         name: unzip
         state: present
 
-    # Required to execute Prestashop CLI install
-    - name: install php and extra packages
-      ansible.builtin.package:
-        name:
-          - php
-          - php-curl
-          - php-gd
-          - php-intl
-          - php-json
-          - php-mbstring
-          - php-mysql
-          - php-zip
-          - php-soap
-          - php-pear
-        state: present
-
-    # A MySql installation is required for Prestashop CLI install
-    - name: install mock mysql database
-      import_role:
+    - name: install mysql
+      ansible.builtin.import_role:
         name: geerlingguy.mysql
 
-    - name: include ansible-role-prestashop
-      import_role:
+    - name: install apache
+      ansible.builtin.import_role:
+        name: geerlingguy.apache
+
+    - name: install php and php-fpm
+      ansible.builtin.import_role:
+        name: geerlingguy.php
+
+    - name: copy prestashop configuration (apache)
+      ansible.builtin.template:
+        src: templates/prestashop.conf.j2
+        dest: "{{ apache_server_root }}/sites-available/prestashop.conf"
+        owner: root
+        group: root
+        mode: '0750'
+      notify: restart apache
+
+    - name: add symlink to prestashop configuration (apache)
+      file:
+        src: "{{ apache_server_root }}/sites-available/prestashop.conf"
+        dest: "{{ apache_server_root }}/sites-enabled/prestashop.conf"
+        state: link
+        mode: 0750
+      notify: restart apache
+
+    - name: install prestashop
+      ansible.builtin.import_role:
         name: ansible-role-prestashop
